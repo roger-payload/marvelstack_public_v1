@@ -309,7 +309,7 @@ def process_game_nights(game_night_folder="./game_nights/", records_location="re
 
 	gpt = GPT(test=test)  # Set to True for testing, False for real AI calls
 	# Loop through all game night JSON files
-	if not test:
+	if not test and ai_enabled:
 		get_latest_tts()
 	for filename in os.listdir(game_night_folder):
 		if filename.endswith(".json") and not filename == "happenings.json":

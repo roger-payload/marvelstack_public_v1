@@ -11,14 +11,13 @@ headers = {
 
 ai_enabled = False # Should AI give feedback to each player based on their performances?
 
-# python3 ./html_gen.py; git add ../.; git commit -am "Hotfix"; git push; ssh marvelstack@login.domeneshop.no "bash ~/housekeeping.sh";
 
 squadname = ""
 site = "" # Used to point to images and other files hosted on site
 
 # Config file for MarvelStack
 
-premium_member = True
+premium_member = False
 base_api = "https://marvelrivalsapi.com/api/v1/"
 base_api_v2 = "https://marvelrivalsapi.com/api/v2/"
 base_image_api = "https://marvelrivalsapi.com"
@@ -31,7 +30,7 @@ time_zone = "Europe/Oslo" # What timezone you are in locally
 api_time_zone = "America/New_York" # What timezone the API returns, so we know how to convert
 
 
-gamerlist = ["zEagleModdz","zKaiju","Zimmons","PaLANator","Xalteros"] # Input the members of your stack
+gamerlist = [] # Input the members of your stack
 role_lock = {} # If you want to lock any players to a specific role for their player cards.
 
 # This is a bit nitty gritty since it uses hero_id and costume_id, but set it here to make correct skins show up for gamers/heroes
@@ -161,7 +160,7 @@ ROLE_SCORING_CATEGORIES = {
 	"default": ["win_rate","kda","tanking_per_minute","damage_per_minute","healing_per_minute","kills_per_minute","assists_per_game","deaths_per_game"] 
 }
 scoring_leeway = .95 # Makes it so that a perfect performance is 10% away from an ACTUAL perfect performance
-player_max_score = (len(ROLE_SCORING_CATEGORIES["default"]) * CATEGORY_MAX_POINTS) * scoring_leeway - 2500
+player_max_score = (len(ROLE_SCORING_CATEGORIES["default"]) * CATEGORY_MAX_POINTS) * scoring_leeway - 25
 hero_max_score = (len(ROLE_SCORING_CATEGORIES["Vanguard"]) * CATEGORY_MAX_POINTS) * scoring_leeway
 
 

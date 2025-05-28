@@ -33,37 +33,38 @@ def analyze_player_synergy(matches_json, gamer):
 
     for match in matches_json:
         details = match["match_details"]
-        match_players = details["match_players"]
+        if details:
+            match_players = details["match_players"]
 
-        # 🔍 Find the player's data in the match
-        gamer_data = next((p for p in match_players if p["player_uid"] == gamer.id), None)
-        if not gamer_data:
-            continue  # Player wasn't in this match, skip
+            # 🔍 Find the player's data in the match
+            gamer_data = next((p for p in match_players if p["player_uid"] == gamer.id), None)
+            if not gamer_data:
+                continue  # Player wasn't in this match, skip
 
-        player_side = gamer_data["camp"]
-        match_won = gamer_data["is_win"] == 1  # 1 means win, 0 means loss
+            player_side = gamer_data["camp"]
+            match_won = gamer_data["is_win"] == 1  # 1 means win, 0 means loss
 
-        # 🔍 Find the player's **most played hero** in the match
-        if not gamer_data.get("player_heroes"):
-            continue  # No hero data, skip
+            # 🔍 Find the player's **most played hero** in the match
+            if not gamer_data.get("player_heroes"):
+                continue  # No hero data, skip
 
-        player_hero = max(gamer_data["player_heroes"], key=lambda h: h["play_time"])["hero_id"]
+            player_hero = max(gamer_data["player_heroes"], key=lambda h: h["play_time"])["hero_id"]
 
-        # 🔍 Collect the player's **team heroes**
-        team_heroes = [
-            p["cur_hero_id"] for p in match_players if p["camp"] == player_side and p["player_uid"] != gamer.id
-        ]
+            # 🔍 Collect the player's **team heroes**
+            team_heroes = [
+                p["cur_hero_id"] for p in match_players if p["camp"] == player_side and p["player_uid"] != gamer.id
+            ]
 
-        # 🔥 Record synergy
-        record_synergy(pick_stats, player_hero, team_heroes, match_won)
+            # 🔥 Record synergy
+            record_synergy(pick_stats, player_hero, team_heroes, match_won)
 
-        # 🔍 Track bans & match outcome (Simplified)
-        for bp in details.get("dynamic_fields", {}).get("ban_pick_info", []):
-            if bp["is_pick"] == 0:  # If it's a ban
-                banned_hero = bp["hero_id"]
-                ban_stats[banned_hero]["bans"] += 1
-                if match_won:
-                    ban_stats[banned_hero]["win_when_banned"] += 1
+            # 🔍 Track bans & match outcome (Simplified)
+            for bp in details.get("dynamic_fields", {}).get("ban_pick_info", []):
+                if bp["is_pick"] == 0:  # If it's a ban
+                    banned_hero = bp["hero_id"]
+                    ban_stats[banned_hero]["bans"] += 1
+                    if match_won:
+                        ban_stats[banned_hero]["win_when_banned"] += 1
 
     return pick_stats, ban_stats
 

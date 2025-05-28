@@ -246,6 +246,7 @@ async def poll_for_update(session, gamer, uids, store_temp_cache, poll_interval=
 					return data
 			else:
 				print(f"{bcol.FAIL}  #### API Responding with ERROR. MOVING ON!{bcol.ENDC}")
+				return data
 		print(f"Time elapsed: {str(elapsed)}. {gamer} update not complete yet. Waiting {poll_interval} seconds. Timing out when {timeout} seconds has passed..")
 		await asyncio.sleep(poll_interval)
 

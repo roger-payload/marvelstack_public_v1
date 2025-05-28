@@ -377,7 +377,8 @@ class Gamer_master():
 					data["match_timestamp"] = timestamp
 					# Attach the comp_game info as extended data
 					data["extended_data"] = comp_game
-					gamer.match_data.append(data)
+					if data["match_details"] is not None:
+						gamer.match_data.append(data)
 				else:
 					print(f"Match file for match_uid {match_uid} not found in {gamer.nickname}'s folder.")
 			

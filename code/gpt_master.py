@@ -173,24 +173,40 @@ def format_game_night_summary(game_night_data,records_location="records.json"):
 		if worst_performer["score"] < 3500:
 			player_highlights += f"\n💀 Horrible night by: {worst_performer['nickname']} with only {worst_performer['score']} points. So rough."
 
-	# === 📝 Final Summary ===
-	game_night_summary = f"""
-=== THESE WERE THE EVENTS IN ORDER ===
-{game_night_data["events"]}
+	if ai_enabled:
+		# === 📝 Final Summary ===
+		game_night_summary = f"""
+	=== THESE WERE THE EVENTS IN ORDER ===
+	{game_night_data["events"]}
 
-=== GAME NIGHT REPORT: {date} ===
+	=== GAME NIGHT REPORT: {date} ===
 
-{overall_performance}
+	{overall_performance}
 
-🔥 The squad fought in {total_matches} matches, securing {total_wins} wins and suffering {total_losses} losses.
-⚔️ They racked up {total_kills} eliminations and {total_assists} assists.
-💀 However, they also took {total_deaths} deaths.
-🩹 Total healing done: {total_healing:,}, while tanks absorbed {total_tanked:,} damage.
+	🔥 The squad fought in {total_matches} matches, securing {total_wins} wins and suffering {total_losses} losses.
+	⚔️ They racked up {total_kills} eliminations and {total_assists} assists.
+	💀 However, they also took {total_deaths} deaths.
+	🩹 Total healing done: {total_healing:,}, while tanks absorbed {total_tanked:,} damage.
 
-{solo_summary}
-{player_highlights}
-{records}
-"""
+	{solo_summary}
+	{player_highlights}
+	{records}
+	"""
+	else:
+		# === 📝 Final Summary ===
+		game_night_summary = f"""
+	=== GAME NIGHT REPORT: {date} ===
+
+	{overall_performance}
+
+	🔥 The squad fought in {total_matches} matches, securing {total_wins} wins and suffering {total_losses} losses.
+	⚔️ They racked up {total_kills} eliminations and {total_assists} assists.
+	💀 However, they also took {total_deaths} deaths.
+	🩹 Total healing done: {total_healing:,}, while tanks absorbed {total_tanked:,} damage.
+
+	{solo_summary}
+	{player_highlights}
+	"""
 	game_night_summary += "Player performances:\r\n"
 	for g in game_night_data["players"]:
 		game_night_summary += f"- {get_player_feedback(g)}\r\n"

@@ -444,7 +444,15 @@ class Gamer_master():
 						stat_object["match_date"] = self.get_game_night_date(match["extended_data"]["match_time_stamp"])
 						stat_object["match_time"] = match["extended_data"]["match_time_stamp"]
 						stat_object["primary"] = True
-						stat_object["win"] = match["extended_data"]["match_player"]["is_win"]["is_win"]
+						if match["extended_data"]["score_info"]["0"] == match["extended_data"]["score_info"]["1"]:
+							stat_object["win"] = "draw"
+						else:
+							if match["extended_data"]["match_player"]["is_win"]["is_win"]:
+								stat_object["win"] = "win"
+							else:
+								stat_object["win"] = "loss"
+
+
 					# TRY TO GET STATS IF NOT MORE THAN TWO HEROES PLAYED
 					# OR MAYBE INFER IF LITTLE TIME ON OTHERS.
 					# Nah impossible. Maybe in the future.
@@ -536,7 +544,7 @@ class Gamer_master():
 			grouped_match_scores = {}
 
 			totals = {
-				"kills": 0, "assists": 0, "deaths": 0, "wins": 0, "losses": 0,
+				"kills": 0, "assists": 0, "deaths": 0, "wins": 0, "draws": 0, "losses": 0,
 				"damage": 0, "healing": 0, "tanked": 0, "seconds_played": 0, "unique_matches" : []
 			}
 
@@ -562,12 +570,15 @@ class Gamer_master():
 							totals["tanked"] += participant["total_damage_taken"]
 							totals["seconds_played"] += self.duration_to_seconds(match["extended_data"]["match_play_duration"])
 
+							if participant["is_win"] == 0:
+								totals["losses"] += 1
+								totals["unique_matches"].append({"match_id":match["match_details"]["match_uid"],"win":"loss", "duration":self.duration_to_seconds(match["extended_data"]["match_play_duration"])})
 							if participant["is_win"] == 1:
 								totals["wins"] += 1
-								totals["unique_matches"].append({"match_id":match["match_details"]["match_uid"],"win":True, "duration":self.duration_to_seconds(match["extended_data"]["match_play_duration"])})
-							else:
-								totals["losses"] += 1
-								totals["unique_matches"].append({"match_id":match["match_details"]["match_uid"],"win":False, "duration":self.duration_to_seconds(match["extended_data"]["match_play_duration"])})
+								totals["unique_matches"].append({"match_id":match["match_details"]["match_uid"],"win":"win", "duration":self.duration_to_seconds(match["extended_data"]["match_play_duration"])})
+							if participant["is_win"] == 2:
+								totals["draws"] += 1
+								totals["unique_matches"].append({"match_id":match["match_details"]["match_uid"],"win":"draw", "duration":self.duration_to_seconds(match["extended_data"]["match_play_duration"])})
 
 							# Track arrays for consistency calculations
 							deaths_array.append(participant["deaths"])
@@ -577,7 +588,7 @@ class Gamer_master():
 							# --- GROUP MATCH SCORES BY DATE ---
 							if match_date not in grouped_match_scores:
 								grouped_match_scores[match_date] = {
-									"kills": 0, "assists": 0, "deaths": 0, "wins": 0, "losses": 0,
+									"kills": 0, "assists": 0, "deaths": 0, "wins": 0, "draws": 0, "losses": 0,
 									"damage": 0, "healing": 0, "tanked": 0, "seconds_played": 0,
 									"match_count": 0, "unique_matches" : []
 								}
@@ -592,12 +603,15 @@ class Gamer_master():
 							grouped_match_scores[match_date]["healing"] += participant["total_hero_heal"]
 							grouped_match_scores[match_date]["tanked"] += participant["total_damage_taken"]
 							grouped_match_scores[match_date]["match_count"] += 1
+							if participant["is_win"] == 0:
+								grouped_match_scores[match_date]["losses"] += 1
+								grouped_match_scores[match_date]["unique_matches"].append({"match_id":match["match_details"]["match_uid"],"win":"loss", "duration":self.duration_to_seconds(match["extended_data"]["match_play_duration"])})
 							if participant["is_win"] == 1:
 								grouped_match_scores[match_date]["wins"] += 1
-								grouped_match_scores[match_date]["unique_matches"].append({"match_id":match["match_details"]["match_uid"],"win":True, "duration":self.duration_to_seconds(match["extended_data"]["match_play_duration"])})
-							else:
-								grouped_match_scores[match_date]["losses"] += 1
-								grouped_match_scores[match_date]["unique_matches"].append({"match_id":match["match_details"]["match_uid"],"win":False, "duration":self.duration_to_seconds(match["extended_data"]["match_play_duration"])})
+								grouped_match_scores[match_date]["unique_matches"].append({"match_id":match["match_details"]["match_uid"],"win":"win", "duration":self.duration_to_seconds(match["extended_data"]["match_play_duration"])})
+							if participant["is_win"] == 2:
+								grouped_match_scores[match_date]["draws"] += 1
+								grouped_match_scores[match_date]["unique_matches"].append({"match_id":match["match_details"]["match_uid"],"win":"draw", "duration":self.duration_to_seconds(match["extended_data"]["match_play_duration"])})
 							grouped_match_scores[match_date]["heroes"] = []
 							if "secondaries" not in grouped_match_scores[match_date]:
 								grouped_match_scores[match_date]["secondaries"] = []
@@ -738,6 +752,7 @@ class Gamer_master():
 			# Load the comp_games data
 			with open(game_night_json, 'r') as f:
 				game_night_data = json.load(f)
+				
 			if "personal_AI_summaries" in game_night_data:
 				for summary in game_night_data["personal_AI_summaries"]:
 					if summary["nickname"] == g.nickname:
@@ -821,9 +836,9 @@ class Gamer_master():
 						totals["damage"] += match["total_hero_damage"]
 						totals["healing"] += match["total_hero_heal"]
 						totals["tanked"] += match["total_damage_taken"]
-						if match["win"]:
+						if match["win"] == "win":
 							totals["wins"] += 1
-						else:
+						if match["win"] == "loss":
 							totals["losses"] += 1
 
 						# Track arrays for consistency calculations
@@ -851,9 +866,9 @@ class Gamer_master():
 						grouped_match_scores[match_date]["healing"] += match["total_hero_heal"]
 						grouped_match_scores[match_date]["tanked"] += match["total_damage_taken"]
 						grouped_match_scores[match_date]["match_count"] += 1
-						if match["win"]:
+						if match["win"] == "win":
 							grouped_match_scores[match_date]["wins"] += 1
-						else:
+						if match["win"] == "loss":
 							grouped_match_scores[match_date]["losses"] += 1
 
 						# --- Derived Statistics Calculations ---
@@ -1112,7 +1127,7 @@ class Gamer_master():
 	            for match in stats["unique_matches"]:
 	                match_id = match["match_id"]
 	                if match_id not in current_matches:
-	                    current_matches[match_id] = {"win": match["win"], "players": set(),"duration":match["duration"]}
+	                    current_matches[match_id] = {"result": match["win"], "players": set(),"duration":match["duration"]}
 	                # Add player to the set for this match
 	                current_matches[match_id]["players"].add(g.nickname)
 
@@ -1152,7 +1167,7 @@ class Gamer_master():
 	        for i, match_id in enumerate(sorted_match_ids):
 	            match_info = night_data["matches"][match_id]
 	            match_players = match_info["players"]
-	            match_win = match_info["win"]
+	            match_win = match_info["result"]
 	            match_timestamp = self._extract_timestamp(match_id)
 	            match_time_str = datetime.datetime.fromtimestamp(match_timestamp).strftime('%H:%M:%S')
 
@@ -1201,7 +1216,11 @@ class Gamer_master():
 	            # --- Event: Match Played (with enhanced message) ---
 	            stomp_time = average_match_time * 0.55
 	            struggle_time = average_match_time * 1.3
-	            outcome_term = "victory"  if match_win else "defeat" # Using terms requested
+	            outcome_term = "victory"
+	            if match_win == "loss":
+	            	outcome_term = "defeat"
+	            if match_win == "draw":
+	            	outcome_term = "draw"
 	            num_players = len(match_players)
 	            duration_str = self.format_duration(match_duration) # Format for display
 
@@ -1217,41 +1236,41 @@ class Gamer_master():
 	                action_prefix = f"{player_name} queued up solo"
 
 	                if is_fast:
-	                    if match_win:
+	                    if match_win == "win":
 	                        message = f"{action_prefix} and swiftly secured a victory in just {duration_str}! WHAT!?"
 	                    else:
 	                        message = f"{action_prefix} but faced a rapid {outcome_term} ({duration_str}). LMAO!"
 	                elif is_long:
-	                     if match_win:
+	                     if match_win == "win":
 	                        message = f"{action_prefix} and clinched a hard-fought {outcome_term} after a long {duration_str} battle! Ugh..."
 	                     else:
-	                        message = f"After a marathon solo match ({duration_str}), {player_name}'s effort ended in {outcome_term}. Gross."
+	                        message = f"After a marathon solo match ({duration_str}), {player_name}'s effort ended in a {outcome_term}. Gross."
 	                else: # Normal duration
 	                    duration_suffix = f" ({duration_str})" if duration_str else ""
-	                    if match_win:
+	                    if match_win == "win":
 	                         message = f"{action_prefix} and achieved {outcome_term}{duration_suffix}. DAMN, SON!"
 	                    else:
-	                         message = f"{action_prefix}, resulting in {outcome_term}{duration_suffix}. Lol smh."
+	                         message = f"{action_prefix}, resulting in a {outcome_term}{duration_suffix}. Lol smh."
 
 	            else: # Stacked queue (2+ players)
 	                stack_desc = f"The {num_players}-stack" # Could randomize: "The squad", "Playing as {num_players}"
 
 	                if is_fast:
-	                    if match_win:
+	                    if match_win  == "win":
 	                         message = f"{stack_desc} dominated, claiming a quick {outcome_term} in only {duration_str}!"
 	                    else:
 	                         message = f"{stack_desc} got steamrolled, suffering a swift {outcome_term} ({duration_str})."
 	                elif is_long:
-	                    if match_win:
+	                    if match_win == "win":
 	                        message = f"After a lengthy {duration_str} struggle, {stack_desc} finally emerged with a {outcome_term}!"
 	                    else:
-	                        message = f"It was a long {duration_str} grind, but {stack_desc} ultimately faced {outcome_term}."
+	                        message = f"It was a long {duration_str} grind, but {stack_desc} ultimately faced a {outcome_term}."
 	                else: # Normal duration
 	                    duration_suffix = f" ({duration_str})" if duration_str else ""
-	                    if match_win:
+	                    if match_win == "win":
 	                         message = f"{stack_desc} worked together for the {outcome_term}{duration_suffix}."
 	                    else:
-	                         message = f"{stack_desc} fought for {squadname}, but ended the match in {outcome_term}{duration_suffix}."
+	                         message = f"{stack_desc} fought for {squadname}, but ended the match in a {outcome_term}{duration_suffix}."
 
 	            # Fallback message if duration was None or context couldn't be determined
 	            if not message:
@@ -1297,6 +1316,7 @@ class Gamer_master():
 	            "total_assists": 0,
 	            "total_wins": 0,
 	            "total_losses": 0,
+	            "total_draws": 0,
 	            "total_damage": 0,
 	            "total_healing": 0,
 	            "total_tanked": 0,
@@ -1337,8 +1357,9 @@ class Gamer_master():
 	                })
 
 	        # Calculate overall wins/losses for the night
-	        final_data["total_wins"] = sum(1 for mid in sorted_match_ids if night_data["matches"][mid]["win"])
-	        final_data["total_losses"] = final_data["match_count"] - final_data["total_wins"]
+	        final_data["total_wins"] = sum(1 for mid in sorted_match_ids if night_data["matches"][mid]["result"] == "win")
+	        final_data["total_losses"] = sum(1 for mid in sorted_match_ids if night_data["matches"][mid]["result"] == "loss")
+	        final_data["total_draws"] = sum(1 for mid in sorted_match_ids if night_data["matches"][mid]["result"] == "draw")
 
 
 	        # --- Step 6: Save Data ---

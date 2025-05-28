@@ -103,6 +103,8 @@ def get_rank_breakpoint_annotations(global_min_sr, global_max_sr):
   return json.dumps(annotations)
 
 def format_text(g_master,text):
+  if not ai_enabled:
+    return ""
   return text
   colored_text = text
   for g in g_master.gamers:
@@ -688,13 +690,8 @@ def generate_timeline(g_master, bronze):
         if latest_date is None or date_obj > latest_date:
             latest_date = date_obj
             latest_events = data.get("events", [])
-            if ai_enabled:
-              latest_ai_title = data.get("AI_title", "(No AI_title found)")
-              latest_ai_summary = data.get("AI_summary", "(No AI_summary found)")
-              # Get events for the latest date *after* confirming it's the latest
-            else:
-              latest_ai_title = "Game night"
-              latest_ai_summary = ""
+            latest_ai_title = data.get("AI_title", "(No AI_title found)")
+            latest_ai_summary = data.get("AI_summary", "(No AI_summary found)")
 
 
     # --- Check if any data was processed ---
@@ -799,6 +796,8 @@ def generate_timeline(g_master, bronze):
                     outcome_class = "event-win"
                 elif outcome == "defeat":
                     outcome_class = "event-loss"
+                else:
+                  outcome_class = "event-draw"
             elif event_type == "game_night_ended":
                 icon_class = "ri-flag-line"
 
@@ -1488,5 +1487,13 @@ def build_site(gamerlist, bronze):
     print("Site built!")
 
 if __name__ == '__main__':
-  build_site(gamerlist, False)
+
+  gamers = gamerlist
+  bronze = False
+  for arg in sys.argv:
+    if arg == "--bronze":
+      gamers = gamerlist_bronze
+      bronze = True
+
+  build_site(gamers, bronze)
 

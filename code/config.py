@@ -31,7 +31,7 @@ time_zone = "Europe/Oslo" # What timezone you are in locally
 api_time_zone = "America/New_York" # What timezone the API returns, so we know how to convert
 
 
-gamerlist = [] # Input the members of your stack
+gamerlist = ["zEagleModdz","zKaiju","Zimmons","PaLANator","Xalteros"] # Input the members of your stack
 role_lock = {} # If you want to lock any players to a specific role for their player cards.
 
 # This is a bit nitty gritty since it uses hero_id and costume_id, but set it here to make correct skins show up for gamers/heroes
@@ -41,7 +41,7 @@ costume_attachments = {
 
 }
 
-#gamerlist_bronze = ["ReportMyAhh","Gigabytebro","DanteMagik","BatmanBIS","Dicken's Sider"] # Input the members of your alt stack if you have one
+gamerlist_bronze = [] # Input the members of your alt stack if you have one
 
 
 gamer_card_hero_count = 6 # How many heroes do you want displayed in the profile card on site, at a max.

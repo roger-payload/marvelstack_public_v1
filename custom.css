@@ -545,6 +545,10 @@ td {
     border-left-color: #28a745; /* Green */
     background-color: rgba(40, 167, 69, 0.1);
 }
+.event-item.event-draw {
+    border-left-color: #b7b7b7;
+    background-color: rgb(205 205 205 / 10%);
+}
 .event-item.event-win .event-icon {
     color: #28a745;
 }

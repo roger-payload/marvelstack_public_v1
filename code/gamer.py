@@ -111,9 +111,10 @@ class Gamer():
 		if ai_enabled:
 			s = f"<p>{self.feedback["title"]} ({datetime.datetime.strptime(self.latest_game_night_date, "%Y-%m-%d").strftime("%d.%m")})</p><p>{self.feedback["content"]}</p>"
 			return re.sub(r'\*\*(.*?)\*\*', r'<strong>\1</strong>', s)
-		# Add the AI stuff here
-		return self.feedback["feedback"].replace(self.full_rank,f"<span class='colored_rank' style='color: {self.data["player"]["rank"]["color"]};background-color: #00000080;padding: 3px 6px;border-radius: 5px;'>"+
-			self.full_rank+"</span>").replace("quell","quell ("+datetime.datetime.strptime(self.latest_game_night_date, "%Y-%m-%d").strftime("%d.%m")+")")
+		else:
+			s = f"<p>{self.feedback["content"]}</p>"
+			s = s.replace("🎮","<br>🎮").replace("🏆","<br>🏆").replace("🔹","<br>🔹").replace("of max)","of max)<br>").replace("🔄","<br>🔄").replace("Secondaries","<br>Secondaries").replace("kda","kda<br>")
+			return re.sub(r'\*\*(.*?)\*\*', r'<strong>\1</strong>', s)
 
 	def saturate_color(self, rgb, min_saturation=0.4):
 	    """

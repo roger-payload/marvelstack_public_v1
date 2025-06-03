@@ -47,6 +47,8 @@ class Gamer_master():
 		self.generate_hero_feedbacks()
 		self.classify_performances()
 		self.set_synergies()
+		self.sanitize_gamerlist()
+
 
 	def secure_name(self,name):
 		if name == "Dagger":
@@ -54,6 +56,13 @@ class Gamer_master():
 		if name == "Bruce Banner":
 			return "Hulk"
 		return name
+
+	def sanitize_gamerlist(self):
+		s_gamers = []
+		for g in self.gamers:
+			if len(g.top_heroes) > 0:
+				s_gamers.append(g)
+		self.gamers = s_gamers 
 
 	def get_player_matches(self):
 	    bcol = Bcol()
